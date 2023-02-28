@@ -35,7 +35,7 @@ export default function useReleases({
       }
     },
     {
-      refetchInterval: 10,
+      refetchInterval: 10 * 1000,
     }
   );
 

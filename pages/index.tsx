@@ -67,8 +67,8 @@ const columns: GridColDef[] = [
 ];
 
 export default function Home() {
-  const [name, setName] = useState<string | null>("");
-  const [version, setVersion] = useState<string | null>("");
+  const [name, setName] = useState<string | null>(null);
+  const [version, setVersion] = useState<string | null>(null);
 
   return (
     <>

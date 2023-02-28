@@ -12,6 +12,7 @@ export default function useVersions(name: string | null) {
     },
     {
       enabled: !!name,
+      refetchInterval: 10 * 1000,
     }
   );
 
