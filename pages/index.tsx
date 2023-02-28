@@ -10,6 +10,7 @@ import {
   Chip,
   Container,
   Grid,
+  LinearProgress,
   List,
   ListItem,
   Pagination,
@@ -191,6 +192,7 @@ export function DetaList({ name, version }: PickerProps) {
 
   return (
     <Stack spacing={2}>
+      {isLoading && <LinearProgress />}
       {data?.items.map((item) => (
         <Card
           variant="outlined"
