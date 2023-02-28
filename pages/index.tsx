@@ -17,6 +17,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import useNames from "@/src/hooks/useNames";
 import useVersions from "@/src/hooks/useVersions";
+import path from "path";
 
 interface PickerProps {
   name: string | null;
@@ -56,7 +57,7 @@ const columns: GridColDef[] = [
             <Chip
               color="primary"
               clickable
-              label={<Typography>Asset {index + 1}</Typography>}
+              label={<Typography>{path.basename(asset)}</Typography>}
               onClick={() => open(asset)}
             />
           </Tooltip>
