@@ -2,12 +2,20 @@ import Head from "next/head";
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import {
+  AppBar,
   Autocomplete,
+  Box,
+  Card,
+  CardContent,
   Chip,
   Container,
+  Grid,
+  List,
+  ListItem,
   Pagination,
   Stack,
   TextField,
+  Toolbar,
   Tooltip,
   Typography,
 } from "@mui/material";
@@ -49,7 +57,7 @@ const columns: GridColDef[] = [
   {
     field: "assets",
     headerName: "Assets",
-    minWidth: 300,
+    minWidth: 500,
     renderCell: (params) => (
       <Stack direction={"row"} spacing={1}>
         {params.row.assets.map((asset: string, index: number) => (
@@ -77,23 +85,60 @@ export default function Home() {
         <title>Release</title>
         <meta name="description" content="Releases" />
       </Head>
-      <Container>
-        <Stack spacing={1}>
-          <Typography variant="h3" fontWeight={"bold"}>
+      <AppBar
+        sx={{
+          backgroundColor: "rgba(255, 255, 255, 0.8)",
+        }}
+        elevation={0}
+        position="static"
+      >
+        <Toolbar>
+          <Typography color="black" variant="h5">
             Releases
           </Typography>
+        </Toolbar>
+      </AppBar>
+      <Container sx={{}}>
+        <Stack spacing={1}>
           <Picker
             name={name}
             setName={setName}
             version={version}
             setVersion={setVersion}
           />
-          <DataTable
-            name={name}
-            version={version}
-            setName={setName}
-            setVersion={setVersion}
-          />
+          <Box
+            sx={{
+              display: {
+                xs: "none",
+                sm: "none",
+                md: "block",
+              },
+            }}
+          >
+            <DataTable
+              name={name}
+              version={version}
+              setName={setName}
+              setVersion={setVersion}
+            />
+          </Box>
+
+          <Box
+            sx={{
+              display: {
+                xs: "block",
+                sm: "block",
+                md: "none",
+              },
+            }}
+          >
+            <DetaList
+              name={name}
+              version={version}
+              setName={setName}
+              setVersion={setVersion}
+            />
+          </Box>
         </Stack>
       </Container>
     </>
@@ -105,31 +150,92 @@ export function Picker({ name, setName, version, setVersion }: PickerProps) {
   const { data: versions, isLoading: isVersionsLoading } = useVersions(name);
 
   return (
-    <Stack direction={"row"} spacing={2}>
-      <Autocomplete
-        disablePortal
-        id="package-name"
-        options={names ?? []}
-        loading={isNamesLoading}
-        sx={{ width: 300 }}
-        renderInput={(params) => <TextField {...params} label="Package name" />}
-        onChange={(event, value) => {
-          setName(value);
-        }}
-      />
-      <Autocomplete
-        disablePortal
-        id="package-version"
-        options={versions ?? []}
-        loading={isVersionsLoading}
-        sx={{ width: 300 }}
-        renderInput={(params) => (
-          <TextField {...params} label="Package version" />
-        )}
-        onChange={(event, value) => {
-          setVersion(value);
-        }}
-      />
+    <Grid container spacing={2}>
+      <Grid item xs={12} md={6}>
+        <Autocomplete
+          fullWidth
+          disablePortal
+          id="package-name"
+          options={names ?? []}
+          loading={isNamesLoading}
+          renderInput={(params) => (
+            <TextField {...params} label="Package name" />
+          )}
+          onChange={(event, value) => {
+            setName(value);
+          }}
+        />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <Autocomplete
+          fullWidth
+          disablePortal
+          id="package-version"
+          options={versions ?? []}
+          loading={isVersionsLoading}
+          renderInput={(params) => (
+            <TextField {...params} label="Package version" />
+          )}
+          onChange={(event, value) => {
+            setVersion(value);
+          }}
+        />
+      </Grid>
+    </Grid>
+  );
+}
+
+export function DetaList({ name, version }: PickerProps) {
+  const [page, setPage] = useState(1);
+  const { isLoading, data } = useReleases({ page, name, version });
+
+  return (
+    <Stack spacing={2}>
+      {data?.items.map((item) => (
+        <Card
+          variant="outlined"
+          sx={{
+            borderRadius: "16px",
+            boxShadow:
+              "rgba(145, 158, 171, 0.2) 0px 0px 2px 0px, rgba(145, 158, 171, 0.12) 0px 12px 24px -4px",
+          }}
+        >
+          <CardContent>
+            <Stack spacing={1}>
+              <Typography variant="h6" fontWeight={"bold"}>
+                {item.name}
+              </Typography>
+              <Typography variant="h6" fontWeight={"bold"}>
+                {item.version}
+              </Typography>
+              <Typography variant="h6" fontWeight={"bold"}>
+                {dayjs(item.date).format("YYYY-MM-DD")}
+              </Typography>
+              <Stack direction={"row"} spacing={1}>
+                {item.assets.map((asset: string, index: number) => (
+                  <Tooltip title={asset}>
+                    <Chip
+                      color="primary"
+                      clickable
+                      label={<Typography>{path.basename(asset)}</Typography>}
+                      onClick={() => open(asset)}
+                    />
+                  </Tooltip>
+                ))}
+              </Stack>
+            </Stack>
+          </CardContent>
+        </Card>
+      ))}
+      <Stack alignItems={"flex-end"}>
+        <Pagination
+          count={data?.total_pages ?? 0}
+          page={data?.page}
+          onChange={(e, page) => {
+            setPage(page);
+          }}
+        />
+      </Stack>
     </Stack>
   );
 }
